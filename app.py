@@ -33,15 +33,16 @@ def index():
 @app.post("/api/v1/upload")
 def upload():
     f = request.files.get("file")
-    # code to save file to Azure
-    return jsonify(ok=True, url="...")
+    if not f:
+        return jsonify({"ok": False, "error": "No file uploaded"}), 400
 
-        blob_name = f"{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}-{file.filename}"
+    try:
+        # Proper indentation inside try block
+        blob_name = f"{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}-{f.filename}"
         blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=blob_name)
-        blob_client.upload_blob(file, overwrite=True)
+        blob_client.upload_blob(f, overwrite=True)
 
         return jsonify({"ok": True, "url": blob_client.url})
-
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
 
