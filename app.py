@@ -27,6 +27,11 @@ blob_service_client = BlobServiceClient.from_connection_string(AZURE_CONNECTION_
 def index():
     return render_template("index.html")
 
+@app.get("/api/v1/health")
+def health():
+    """Simple health check for autograder"""
+    return jsonify({"ok": True})
+
 @app.post("/api/v1/upload")
 def upload():
     f = request.files.get("file")
@@ -45,9 +50,13 @@ def upload():
 
 @app.get("/api/v1/gallery")
 def gallery():
-    # code to list images in Azure Blob
-    return jsonify(ok=True, gallery=[...])
-
+    try:
+        container_client = blob_service_client.get_container_client(CONTAINER_NAME)
+        blob_list = container_client.list_blobs()
+        urls = [f"https://{container_client.account_name}.blob.core.windows.net/{CONTAINER_NAME}/{blob.name}" for blob in blob_list]
+        return jsonify({"ok": True, "gallery": urls})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)})
 # -----------------------------
 # Run Flask
 # -----------------------------
