@@ -4,16 +4,13 @@ from azure.storage.blob import BlobServiceClient
 from datetime import datetime
 from dotenv import load_dotenv
 
-# -----------------------------
-# Load .env explicitly
-# -----------------------------
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-if not load_dotenv(dotenv_path):
-    raise FileNotFoundError(f".env file not found at {dotenv_path}")
+# Try loading from .env (for local use), but don’t crash if it’s missing
+load_dotenv()
 
 AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-if AZURE_CONNECTION_STRING is None:
-    raise ValueError("AZURE_STORAGE_CONNECTION_STRING not found in .env")
+
+if not AZURE_CONNECTION_STRING:
+    raise ValueError("Missing Azure connection string. Set AZURE_STORAGE_CONNECTION_STRING in Azure App Settings.")
 
 # -----------------------------
 # Flask & Azure setup
