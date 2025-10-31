@@ -4,11 +4,8 @@ from azure.storage.blob import BlobServiceClient
 from datetime import datetime
 from dotenv import load_dotenv
 
-# Try loading from .env (for local use), but don’t crash if it’s missing
 load_dotenv()
-
 AZURE_CONNECTION_STRING = os.getenv("AZURE_STORAGE_CONNECTION_STRING")
-
 if not AZURE_CONNECTION_STRING:
     raise ValueError("Missing Azure connection string. Set AZURE_STORAGE_CONNECTION_STRING in Azure App Settings.")
 
@@ -43,7 +40,6 @@ def upload():
         blob_name = f"{datetime.utcnow().strftime('%Y%m%dT%H%M%S')}-{f.filename}"
         blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=blob_name)
         blob_client.upload_blob(f, overwrite=True)
-
         return jsonify({"ok": True, "url": blob_client.url})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
@@ -57,8 +53,3 @@ def gallery():
         return jsonify({"ok": True, "gallery": urls})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)})
-# -----------------------------
-# Run Flask
-# -----------------------------
-if __name__ == "__main__":
-    app.run(debug=True)
